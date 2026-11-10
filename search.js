@@ -10,12 +10,12 @@
     "胸": ["chest"], "大胸筋": ["chest"], "胸筋": ["chest"],
     "肩": ["shoulders"], "三角筋": ["shoulders"],
     "腹": ["abdominals"], "腹筋": ["abdominals"], "体幹": ["abdominals"], "腹斜筋": ["abdominals"],
-    "背中": ["lats", "middle back", "lower back"], "背筋": ["lats", "middle back", "lower back"],
+    "背中": ["lats", "middle back", "lower back", "bp:back"], "背筋": ["lats", "middle back", "lower back", "bp:back"],
     "広背筋": ["lats"], "僧帽筋": ["traps"], "腰": ["lower back"],
     "上腕二頭筋": ["biceps"], "二頭": ["biceps"], "力こぶ": ["biceps"],
-    "上腕三頭筋": ["triceps"], "三頭": ["triceps"], "腕": ["biceps", "triceps", "forearms"],
+    "上腕三頭筋": ["triceps"], "三頭": ["triceps"], "腕": ["biceps", "triceps", "forearms", "bp:arms"],
     "前腕": ["forearms"], "握力": ["forearms"],
-    "脚": ["quadriceps", "hamstrings", "calves", "glutes"], "足": ["quadriceps", "hamstrings", "calves", "glutes"],
+    "脚": ["quadriceps", "hamstrings", "calves", "glutes", "bp:legs"], "足": ["quadriceps", "hamstrings", "calves", "glutes", "bp:legs"],
     "太もも": ["quadriceps", "hamstrings"], "大腿四頭筋": ["quadriceps"], "四頭": ["quadriceps"],
     "ハムストリング": ["hamstrings"], "ハム": ["hamstrings"], "もも裏": ["hamstrings"],
     "ふくらはぎ": ["calves"], "カーフ": ["calf", "calves"],
@@ -25,7 +25,7 @@
     "ダンベル": ["dumbbell"], "バーベル": ["barbell"], "自重": ["body only"], "器具なし": ["body only"],
     "ケーブル": ["cable"], "マシン": ["machine"], "ケトルベル": ["kettlebells"],
     "チューブ": ["bands"], "バンド": ["bands"], "メディシンボール": ["medicine ball"],
-    "バランスボール": ["exercise ball"], "フォームローラー": ["foam roll"], "ezバー": ["e-z curl bar"],
+    "バランスボール": ["exercise ball"], "懸垂バー": ["pull-up bar"], "鉄棒": ["pull-up bar"], "フォームローラー": ["foam roll"], "ezバー": ["e-z curl bar"],
     // 種類
     "ストレッチ": ["stretch", "stretching"], "有酸素": ["cardio"], "プライオメトリクス": ["plyometrics"],
     "パワーリフティング": ["powerlifting"], "ウエイトリフティング": ["olympic weightlifting"],
@@ -55,9 +55,11 @@
   // 1 種目ぶんの「探される文字列」を前もって作っておきます。
   function buildIndex(exercises) {
     return exercises.map((ex) => {
-      const name = normalize(ex.name);
+      const name = normalize([ex.name, ...(ex.aliases || [])].join(" | "));
       const rest = normalize([
         ex.category, ex.equipment, ex.level, ex.force, ex.mechanic,
+        // wger の大まかな部位は "bp:legs" の形にして、種目名の "legs" などと混ざらないようにします。
+        ex.bodyPart && "bp:" + ex.bodyPart,
         ...(ex.primaryMuscles || []), ...(ex.secondaryMuscles || []),
       ].filter(Boolean).join(" "));
       return { ex, name, hay: name + " | " + rest };
@@ -110,12 +112,19 @@
 
   const FILTER_KEYS = ["muscle", "equipment", "category", "level", "force", "mechanic"];
 
+  // 筋肉 → wger の大まかな部位。筋肉が書かれていない wger の種目を、部位の絞り込みで拾うために使います。
+  const MUSCLE_BODYPART = {
+    chest: "chest", lats: "back", "middle back": "back", "lower back": "back", traps: "back",
+    quadriceps: "legs", hamstrings: "legs", glutes: "legs", adductors: "legs", abductors: "legs",
+    calves: "calves", shoulders: "shoulders", biceps: "arms", triceps: "arms", forearms: "arms", abdominals: "abs",
+  };
+
   function passFilters(ex, f) {
     if (f.muscle) {
-      const ms = f.includeSecondary
-        ? [...(ex.primaryMuscles || []), ...(ex.secondaryMuscles || [])]
-        : ex.primaryMuscles || [];
-      if (!ms.includes(f.muscle)) return false;
+      const primary = ex.primaryMuscles || [];
+      const ms = f.includeSecondary ? [...primary, ...(ex.secondaryMuscles || [])] : primary;
+      const byPart = !primary.length && ex.bodyPart && MUSCLE_BODYPART[f.muscle] === ex.bodyPart;
+      if (!ms.includes(f.muscle) && !byPart) return false;
     }
     if (f.equipment && (ex.equipment || "none") !== f.equipment) return false;
     for (const k of ["category", "level", "force", "mechanic"]) {
@@ -139,7 +148,9 @@
       }
       out.push({ ex: row.ex, score });
     }
-    out.sort((a, b) => b.score - a.score || a.ex.name.localeCompare(b.ex.name));
+    // 当たり具合が同じなら、画像のある種目を先にします。
+    const pic = (ex) => (ex.images && ex.images.length ? 1 : 0);
+    out.sort((a, b) => b.score - a.score || pic(b.ex) - pic(a.ex) || a.ex.name.localeCompare(b.ex.name));
     return out.map((r) => r.ex);
   }
 
@@ -155,14 +166,16 @@
     abdominals: "腹",
     neck: "その他",
   };
+  // wger の種目には筋肉が書かれていないものがあるので、そのときは大まかな部位 (bodyPart) で決めます。
+  const PFC_BODYPART = { abs: "腹", arms: "腕", back: "背中", calves: "脚", chest: "胸", legs: "脚", shoulders: "肩", cardio: "その他" };
   function pfcUrl(ex) {
     const p = new URLSearchParams();
     p.set("exercise", String(ex.name).slice(0, 40));
-    p.set("muscle", PFC_MUSCLE[(ex.primaryMuscles || [])[0]] || "その他");
+    p.set("muscle", PFC_MUSCLE[(ex.primaryMuscles || [])[0]] || PFC_BODYPART[ex.bodyPart] || "その他");
     return PFC_URL + "?" + p.toString();
   }
 
-  const api = { JA_SYNONYMS, FILTER_KEYS, PFC_MUSCLE, normalize, buildIndex, parseQuery, search, pfcUrl };
+  const api = { JA_SYNONYMS, FILTER_KEYS, PFC_MUSCLE, PFC_BODYPART, normalize, buildIndex, parseQuery, search, pfcUrl };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ExSearch = api;
 })(typeof window !== "undefined" ? window : globalThis);
