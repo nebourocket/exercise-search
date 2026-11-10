@@ -23,3 +23,8 @@ SOFTWARE.
 The exercise data in data/exercises.json and the images loaded from
 https://github.com/yuhonas/free-exercise-db are released under The Unlicense
 by their authors and are not covered by the MIT license above.
+
+The exercise data in data/wger.json and the images loaded from https://wger.de
+come from the wger project (https://wger.de). Each exercise is licensed by its
+author under CC-BY-SA 3.0, CC-BY-SA 4.0 or CC0, as recorded in its
+"attribution" field, and is not covered by the MIT license above.

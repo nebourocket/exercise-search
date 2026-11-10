@@ -4,6 +4,8 @@
   const S = window.ExSearch;
   const IMG_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
   const PAGE = 48;
+  // free-exercise-db の画像は相対パス、wger の画像は完全な URL です。
+  const imgUrl = (src) => (/^https?:/.test(src) ? src : IMG_BASE + src);
 
   // 画面の文字 (英語と日本語)。
   const T = {
@@ -13,9 +15,9 @@
       secondary: "Include secondary muscles", reset: "Clear filters", more: "Show more",
       empty: "No exercises found. Try fewer words or clear the filters.",
       howto: "How to", logPfc: "Log in PFC Calculator", copyLink: "Copy link", copied: "Copied!",
-      dataFrom: "Exercise data and images:",
+      dataFrom: "Exercise data and images:", noImage: "No image", source: "Source",
       disclaimer: "For general information only. Warm up, use safe loads, and consult a professional if you have an injury or health condition.",
-      count: (n, all) => `${n} of ${all} exercises`,
+      count: (n, all) => `${n.toLocaleString("en")} of ${all.toLocaleString("en")} exercises`,
       all: "All", primary: "Primary", secondaryM: "Secondary",
       muscle: "Muscle", equipment: "Equipment", category: "Type", level: "Level", force: "Force", mechanic: "Mechanic",
       lang: "日本語",
@@ -26,9 +28,9 @@
       secondary: "補助で使う筋肉も含める", reset: "絞り込みを解除", more: "もっと見る",
       empty: "見つかりませんでした。言葉を減らすか、絞り込みを解除してください。",
       howto: "やり方 (英語)", logPfc: "PFC計算ツールに記録", copyLink: "リンクをコピー", copied: "コピーしました",
-      dataFrom: "種目データと画像:",
+      dataFrom: "種目データと画像:", noImage: "画像なし", source: "出典",
       disclaimer: "一般的な情報です。ウォームアップをして無理のない重さで行い、けがや持病がある場合は専門家に相談してください。",
-      count: (n, all) => `${all} 種目中 ${n} 件`,
+      count: (n, all) => `${all.toLocaleString("ja")} 種目中 ${n.toLocaleString("ja")} 件`,
       all: "すべて", primary: "主に使う筋肉", secondaryM: "補助で使う筋肉",
       muscle: "部位", equipment: "器具", category: "種類", level: "レベル", force: "動き", mechanic: "関節",
       lang: "English",
@@ -43,14 +45,14 @@
     barbell: "バーベル", dumbbell: "ダンベル", "body only": "自重", cable: "ケーブル", machine: "マシン",
     kettlebells: "ケトルベル", bands: "チューブ・バンド", "medicine ball": "メディシンボール",
     "exercise ball": "バランスボール", "foam roll": "フォームローラー", "e-z curl bar": "EZ バー",
-    other: "その他", none: "器具なし",
+    other: "その他", none: "器具なし・不明", "pull-up bar": "懸垂バー", bench: "ベンチ",
     strength: "筋トレ", stretching: "ストレッチ", plyometrics: "プライオメトリクス", powerlifting: "パワーリフティング",
     "olympic weightlifting": "ウエイトリフティング", strongman: "ストロングマン", cardio: "有酸素",
     beginner: "初級", intermediate: "中級", expert: "上級",
     push: "押す", pull: "引く", static: "静止",
     compound: "多関節", isolation: "単関節",
   };
-  const V_EN = { none: "no equipment" };
+  const V_EN = { none: "none / unspecified" };
 
   let lang = "en";
   try {
@@ -121,11 +123,14 @@
   }
 
   function card(ex) {
-    const img = el("img", { alt: "", loading: "lazy", width: "320", height: "240", src: IMG_BASE + ex.images[0] });
+    const src = ex.thumb || ex.images[0];
+    const img = src
+      ? el("img", { alt: "", loading: "lazy", width: "320", height: "240", src: imgUrl(src) })
+      : el("div", { class: "noimg", text: tr("noImage") });
     const tags = el("ul", { class: "tags" }, [
       ...(ex.primaryMuscles || []).map((m) => el("li", { class: "m", text: val(m) })),
       el("li", { text: val(ex.equipment || "none") }),
-      el("li", { text: val(ex.level) }),
+      ex.level && el("li", { text: val(ex.level) }),
     ]);
     const b = el("button", { type: "button", class: "card" }, [img, el("div", { class: "body" }, [el("h2", { text: ex.name }), tags])]);
     b.addEventListener("click", () => openDetail(ex.id, true));
@@ -176,7 +181,8 @@
     $("d-name").textContent = ex.name;
     const imgs = $("d-images");
     imgs.textContent = "";
-    ex.images.forEach((src, i) => imgs.appendChild(el("img", { src: IMG_BASE + src, alt: `${ex.name} ${i + 1}`, loading: "lazy" })));
+    ex.images.forEach((src, i) => imgs.appendChild(el("img", { src: imgUrl(src), alt: `${ex.name} ${i + 1}`, loading: "lazy" })));
+    imgs.hidden = !ex.images.length;
     const tags = $("d-tags");
     tags.textContent = "";
     [ex.category, ex.equipment || "none", ex.level, ex.force, ex.mechanic].filter(Boolean)
@@ -192,6 +198,27 @@
     const ol = $("d-steps");
     ol.textContent = "";
     (ex.instructions || []).forEach((s) => ol.appendChild(el("li", { text: s })));
+    const hasSteps = !!(ex.instructions || []).length;
+    ol.hidden = !hasSteps;
+    document.querySelector('[data-i18n="howto"]').hidden = !hasSteps;
+    // wger の種目は CC-BY-SA などのため、出典・ライセンス・作者を必ず出します。
+    const credit = $("d-credit");
+    credit.textContent = "";
+    if (ex.attribution) {
+      const a = ex.attribution;
+      credit.append(tr("source") + ": ");
+      credit.appendChild(el("a", { href: a.url, target: "_blank", rel: "noopener", text: "wger" }));
+      a.licenses.forEach((l) => {
+        credit.append(" · ");
+        credit.appendChild(el("a", { href: l.url, target: "_blank", rel: "noopener", text: l.name }));
+      });
+      const who = [a.author, ...a.imageAuthors].filter(Boolean);
+      if (who.length) credit.append(" · " + [...new Set(who)].join(", "));
+    } else {
+      credit.append(tr("source") + ": ");
+      credit.appendChild(el("a", { href: "https://github.com/yuhonas/free-exercise-db", target: "_blank", rel: "noopener", text: "free-exercise-db" }));
+      credit.append(" · Unlicense");
+    }
     $("d-pfc").href = S.pfcUrl(ex);
     $("d-share").textContent = tr("copyLink");
     if (updateUrl) writeUrl(id);
@@ -227,10 +254,9 @@
     run(true);
   });
 
-  fetch("data/exercises.json")
-    .then((r) => r.json())
-    .then((json) => {
-      data = json;
+  Promise.all(["data/exercises.json", "data/wger.json"].map((u) => fetch(u).then((r) => r.json())))
+    .then(([free, wger]) => {
+      data = free.concat(wger);
       index = S.buildIndex(data);
       byId = new Map(data.map((ex) => [ex.id, ex]));
       const id = readUrl();
