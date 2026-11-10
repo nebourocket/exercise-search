@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://raw.githubusercontent.com; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Exercise Search</title>
+<meta name="description" content="Search 870+ strength, bodyweight and stretching exercises by name, muscle and equipment. Free and open data.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <h1 class="brand" data-i18n="title">Exercise Search</h1>
+    <button type="button" id="lang" class="ghost" aria-label="Language">日本語</button>
+  </div>
+  <div class="wrap">
+    <label for="q" class="sr-only" data-i18n="searchLabel">Search exercises</label>
+    <input id="q" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="placeholder" placeholder="e.g. bench press, dumbbell chest, pull-up">
+    <div class="filters" id="filters"></div>
+    <label class="check"><input type="checkbox" id="secondary"> <span data-i18n="secondary">Include secondary muscles</span></label>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="bar">
+    <p id="count" role="status"></p>
+    <button type="button" id="reset" class="ghost" data-i18n="reset">Clear filters</button>
+  </div>
+  <ul id="results" class="grid"></ul>
+  <button type="button" id="more" class="more" hidden data-i18n="more">Show more</button>
+  <p id="empty" class="empty" hidden data-i18n="empty">No exercises found. Try fewer words or clear the filters.</p>
+</main>
+
+<dialog id="detail" aria-labelledby="d-name">
+  <article>
+    <header class="d-head">
+      <h2 id="d-name"></h2>
+      <button type="button" id="d-close" class="ghost" aria-label="Close">✕</button>
+    </header>
+    <div class="d-images" id="d-images"></div>
+    <ul class="tags" id="d-tags"></ul>
+    <dl class="d-muscles" id="d-muscles"></dl>
+    <h3 data-i18n="howto">How to</h3>
+    <ol id="d-steps"></ol>
+    <div class="d-actions">
+      <a id="d-pfc" class="primary" target="_blank" rel="noopener" data-i18n="logPfc">Log in PFC Calculator</a>
+      <button type="button" id="d-share" class="ghost" data-i18n="copyLink">Copy link</button>
+    </div>
+  </article>
+</dialog>
+
+<footer class="wrap foot">
+  <p><span data-i18n="dataFrom">Exercise data and images:</span> <a href="https://github.com/yuhonas/free-exercise-db" rel="noopener">free-exercise-db</a> (Unlicense). <a href="https://github.com/nebourocket/exercise-search" rel="noopener">Source on GitHub</a> · <a href="https://nebourocket.github.io/pfc-calculator/" rel="noopener">PFC Calculator</a></p>
+  <p class="small" data-i18n="disclaimer">For general information only. Warm up, use safe loads, and consult a professional if you have an injury or health condition.</p>
+</footer>
+
+<script src="search.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
