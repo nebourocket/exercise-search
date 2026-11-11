@@ -122,3 +122,5 @@ dialog ol li { margin-bottom: 6px; }
 .guide ul li { margin-bottom: 4px; }
 .badge { font-size: 0.72rem; font-weight: 600; background: var(--surface); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
 .guide[hidden] { display: none; }
+.guide-note { font-size: 0.88rem; border-left: 3px solid var(--accent); padding-left: 10px; color: var(--muted); }
+.guide-note[hidden] { display: none; }

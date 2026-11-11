@@ -213,6 +213,10 @@
     howto.textContent = tr(g ? "howtoOrig" : "howto");
     $("d-guide").hidden = !g;
     if (g) {
+      // 元データに手順がなく一般的なやり方から書いた説明などは、その根拠 (note) を先に出します。
+      const note = $("d-guide-note");
+      note.textContent = g.note || "";
+      note.hidden = !g.note;
       $("d-guide-setup").textContent = g.setup;
       for (const [id, list] of [["d-guide-steps", g.steps], ["d-guide-tips", g.tips]]) {
         const box = $(id);
