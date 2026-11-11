@@ -15,7 +15,10 @@
       secondary: "Include secondary muscles", reset: "Clear filters", more: "Show more",
       empty: "No exercises found. Try fewer words or clear the filters.",
       howto: "How to", logPfc: "Log in PFC Calculator", copyLink: "Copy link", copied: "Copied!",
-      dataFrom: "Exercise data and images:", noImage: "No image", source: "Source",
+      dataFrom: "Exercise data and images:", noImage: "No image", noImageGuide: "No image · detailed guide", source: "Source",
+      guideTitle: "Detailed guide", aiBadge: "Written by AI", tipsTitle: "Common mistakes & safety",
+      aiNote: "This exercise has no image, so this text was written by AI from the original description. It may contain mistakes — check with a coach if unsure.",
+      howtoOrig: "Original description",
       disclaimer: "For general information only. Warm up, use safe loads, and consult a professional if you have an injury or health condition.",
       count: (n, all) => `${n.toLocaleString("en")} of ${all.toLocaleString("en")} exercises`,
       all: "All", primary: "Primary", secondaryM: "Secondary",
@@ -28,7 +31,10 @@
       secondary: "補助で使う筋肉も含める", reset: "絞り込みを解除", more: "もっと見る",
       empty: "見つかりませんでした。言葉を減らすか、絞り込みを解除してください。",
       howto: "やり方 (英語)", logPfc: "PFC計算ツールに記録", copyLink: "リンクをコピー", copied: "コピーしました",
-      dataFrom: "種目データと画像:", noImage: "画像なし", source: "出典",
+      dataFrom: "種目データと画像:", noImage: "画像なし", noImageGuide: "画像なし・詳しい説明あり", source: "出典",
+      guideTitle: "詳しい説明", aiBadge: "AI が書いた説明", tipsTitle: "よくある間違いと注意点",
+      aiNote: "この種目には画像がないため、元の説明をもとに AI が書いた文章です。間違いを含むことがあります。不安なときはトレーナーに確かめてください。",
+      howtoOrig: "元の説明 (英語)",
       disclaimer: "一般的な情報です。ウォームアップをして無理のない重さで行い、けがや持病がある場合は専門家に相談してください。",
       count: (n, all) => `${all.toLocaleString("ja")} 種目中 ${n.toLocaleString("ja")} 件`,
       all: "すべて", primary: "主に使う筋肉", secondaryM: "補助で使う筋肉",
@@ -71,6 +77,7 @@
   };
 
   let data = [], index = [], byId = new Map(), current = [], shown = 0;
+  let guides = {}; // 画像のない種目の、AI が書いた詳しい説明 (data/guides.json)
   const filters = {};
   const selects = {};
 
@@ -126,7 +133,7 @@
     const src = ex.thumb || ex.images[0];
     const img = src
       ? el("img", { alt: "", loading: "lazy", width: "320", height: "240", src: imgUrl(src) })
-      : el("div", { class: "noimg", text: tr("noImage") });
+      : el("div", { class: "noimg", text: tr(guides[ex.id] ? "noImageGuide" : "noImage") });
     const tags = el("ul", { class: "tags" }, [
       ...(ex.primaryMuscles || []).map((m) => el("li", { class: "m", text: val(m) })),
       el("li", { text: val(ex.equipment || "none") }),
@@ -200,7 +207,19 @@
     (ex.instructions || []).forEach((s) => ol.appendChild(el("li", { text: s })));
     const hasSteps = !!(ex.instructions || []).length;
     ol.hidden = !hasSteps;
-    document.querySelector('[data-i18n="howto"]').hidden = !hasSteps;
+    const g = guides[ex.id] && guides[ex.id][lang];
+    const howto = document.querySelector('[data-i18n="howto"]');
+    howto.hidden = !hasSteps;
+    howto.textContent = tr(g ? "howtoOrig" : "howto");
+    $("d-guide").hidden = !g;
+    if (g) {
+      $("d-guide-setup").textContent = g.setup;
+      for (const [id, list] of [["d-guide-steps", g.steps], ["d-guide-tips", g.tips]]) {
+        const box = $(id);
+        box.textContent = "";
+        list.forEach((x) => box.appendChild(el("li", { text: x })));
+      }
+    }
     // wger の種目は CC-BY-SA などのため、出典・ライセンス・作者を必ず出します。
     const credit = $("d-credit");
     credit.textContent = "";
@@ -254,9 +273,10 @@
     run(true);
   });
 
-  Promise.all(["data/exercises.json", "data/wger.json"].map((u) => fetch(u).then((r) => r.json())))
-    .then(([free, wger]) => {
+  Promise.all(["data/exercises.json", "data/wger.json", "data/guides.json"].map((u) => fetch(u).then((r) => r.json())))
+    .then(([free, wger, guideMap]) => {
       data = free.concat(wger);
+      guides = guideMap;
       index = S.buildIndex(data);
       byId = new Map(data.map((ex) => [ex.id, ex]));
       const id = readUrl();
