@@ -87,4 +87,8 @@ t("詳しい説明は画像のない種目にだけ付き、日英とも揃っ�
     }
   }
 });
+t("画像のない種目には全部、説明が付いている", () => {
+  const g = require(path.join(__dirname, "..", "data", "guides.json"));
+  wger.filter((e) => !e.images.length).forEach((e) => assert.ok(g[e.id], e.id));
+});
 console.log(`${n} tests passed`);
