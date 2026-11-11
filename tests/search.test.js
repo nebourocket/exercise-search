@@ -73,14 +73,14 @@ t("部位で絞ると、筋肉の無い wger の種目も大まかな部位で�
   assert.ok(r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart === "back"));
   assert.ok(!r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart !== "back"));
 });
-t("詳しい説明は画像のない種目にだけ付き、日英とも揃っている", () => {
+t("詳しい説明は画像か手順の文章がない種目にだけ付き、日英とも揃っている", () => {
   const guides = require(path.join(__dirname, "..", "data", "guides.json"));
   const byId = new Map(data.map((e) => [e.id, e]));
   const ids = Object.keys(guides);
   assert.ok(ids.length > 400);
   for (const id of ids) {
     const e = byId.get(id);
-    assert.ok(e && !e.images.length, id);
+    assert.ok(e && (!e.images.length || !(e.instructions || []).length), id);
     for (const L of ["en", "ja"]) {
       const g = guides[id][L];
       assert.ok(g.setup && g.steps.length >= 3 && g.tips.length >= 2, id + L);
@@ -90,5 +90,9 @@ t("詳しい説明は画像のない種目にだけ付き、日英とも揃っ�
 t("画像のない種目には全部、説明が付いている", () => {
   const g = require(path.join(__dirname, "..", "data", "guides.json"));
   wger.filter((e) => !e.images.length).forEach((e) => assert.ok(g[e.id], e.id));
+});
+t("説明文が 1 つもない種目は無い", () => {
+  const g = require(path.join(__dirname, "..", "data", "guides.json"));
+  data.forEach((e) => assert.ok((e.instructions || []).length || g[e.id], e.id));
 });
 console.log(`${n} tests passed`);
