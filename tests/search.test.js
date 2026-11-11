@@ -130,4 +130,33 @@ t("翻訳した名前でも探せる", () => {
   assert.strictEqual(S.search(ix, "フーバー", {}).length, 1);
   assert.strictEqual(S.search(ix, "富巴", {}).length, 1);
 });
+// ---- 翻訳データ ----
+const i18n = require(path.join(__dirname, "..", "data", "i18n.json"));
+const guidesAll = require(path.join(__dirname, "..", "data", "guides.json"));
+t("全種目に日本語・中国語の名前がある", () => {
+  data.forEach((e) => assert.ok(i18n[e.id] && i18n[e.id].ja.name && i18n[e.id].zh.name, e.id));
+});
+t("翻訳した手順は原文と同じ数", () => {
+  data.forEach((e) => {
+    if (guidesAll[e.id]) return;
+    for (const L of ["ja", "zh"]) assert.strictEqual((i18n[e.id][L].steps || []).length, (e.instructions || []).length, e.id + L);
+  });
+});
+t("中国語にかなが混じっていない", () => {
+  const kana = /[ぁ-んァ-ヶ]/;
+  for (const t of Object.values(i18n)) {
+    assert.ok(!kana.test(t.zh.name), t.zh.name);
+    (t.zh.steps || []).forEach((s) => assert.ok(!kana.test(s), s));
+  }
+  for (const g of Object.values(guidesAll)) [g.zh.note || "", g.zh.setup, ...g.zh.steps, ...g.zh.tips].forEach((s) => assert.ok(!kana.test(s), s));
+});
+t("AI の説明は 3 言語そろっている", () => {
+  for (const [id, g] of Object.entries(guidesAll)) for (const L of ["en", "ja", "zh"]) assert.ok(g[L] && g[L].setup && g[L].steps.length >= 3, id + L);
+});
+t("翻訳した名前で探せる (日本語・中国語)", () => {
+  const ix = S.buildIndex(data, i18n);
+  assert.ok(S.search(ix, "ベンチプレス", {}).length > 0);
+  assert.ok(S.search(ix, "卧推", {}).length > 0);
+  assert.ok(S.search(ix, i18n["Barbell_Squat"].zh.name, {}).some((e) => e.id === "Barbell_Squat"));
+});
 console.log(`${n} tests passed`);
