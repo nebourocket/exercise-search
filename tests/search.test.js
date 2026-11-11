@@ -95,4 +95,39 @@ t("説明文が 1 つもない種目は無い", () => {
   const g = require(path.join(__dirname, "..", "data", "guides.json"));
   data.forEach((e) => assert.ok((e.instructions || []).length || g[e.id], e.id));
 });
+// ---- 「ここを鍛えたい」検索 ----
+const muscleOf = (q) => S.parseQuery(q).flatMap((g) => g.terms || []);
+t("「二の腕を引き締めたい」は上腕三頭筋として探す", () => {
+  assert.deepStrictEqual(muscleOf("二の腕を引き締めたい"), ["triceps"]);
+  assert.ok(S.search(idx, "二の腕を引き締めたい", {}).slice(0, 20).every((e) => e.primaryMuscles.includes("triceps")));
+});
+t("「お腹を鍛えたい」「太ももの裏を鍛えたい」", () => {
+  assert.deepStrictEqual(muscleOf("お腹を鍛えたい"), ["abdominals"]);
+  assert.deepStrictEqual(muscleOf("太ももの裏を鍛えたい"), ["hamstrings"]);
+});
+t("中国語「想练臀部」「我想练背」", () => {
+  assert.deepStrictEqual(muscleOf("想练臀部"), ["glutes"]);
+  assert.ok(muscleOf("我想练背").includes("lats"));
+  assert.ok(S.search(idx, "想练臀部", {}).slice(0, 20).every((e) => e.primaryMuscles.includes("glutes")));
+});
+t("英語「I want to train my back」「abs at home」", () => {
+  assert.ok(muscleOf("I want to train my back").includes("lats"));
+  const g = S.parseQuery("abs at home");
+  assert.strictEqual(g.length, 2);
+  S.search(idx, "abs at home", {}).forEach((e) => assert.strictEqual(e.equipment, "body only"));
+});
+t("部位で探したときは主に使う筋肉が一致するものが上", () => {
+  const r = S.search(idx, "お尻", {});
+  assert.ok(r.slice(0, 30).every((e) => e.primaryMuscles.includes("glutes") || e.bodyPart === "legs"));
+});
+t("種目名の検索は今まで通り (bench press・ベンチプレス・卧推)", () => {
+  assert.strictEqual(names("bench press")[0], "Bench Press");
+  assert.ok(names("ベンチプレス").length > 0);
+  assert.ok(names("卧推").length > 0);
+});
+t("翻訳した名前でも探せる", () => {
+  const ix = S.buildIndex([{ id: "x", name: "Foo Bar", images: [], primaryMuscles: [] }], { x: { ja: { name: "フーバー" }, zh: { name: "富巴" } } });
+  assert.strictEqual(S.search(ix, "フーバー", {}).length, 1);
+  assert.strictEqual(S.search(ix, "富巴", {}).length, 1);
+});
 console.log(`${n} tests passed`);
