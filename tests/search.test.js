@@ -73,4 +73,18 @@ t("部位で絞ると、筋肉の無い wger の種目も大まかな部位で�
   assert.ok(r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart === "back"));
   assert.ok(!r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart !== "back"));
 });
+t("詳しい説明は画像のない種目にだけ付き、日英とも揃っている", () => {
+  const guides = require(path.join(__dirname, "..", "data", "guides.json"));
+  const byId = new Map(data.map((e) => [e.id, e]));
+  const ids = Object.keys(guides);
+  assert.ok(ids.length > 400);
+  for (const id of ids) {
+    const e = byId.get(id);
+    assert.ok(e && !e.images.length, id);
+    for (const L of ["en", "ja"]) {
+      const g = guides[id][L];
+      assert.ok(g.setup && g.steps.length >= 3 && g.tips.length >= 2, id + L);
+    }
+  }
+});
 console.log(`${n} tests passed`);
