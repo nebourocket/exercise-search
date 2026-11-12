@@ -266,3 +266,8 @@ dialog ol li { margin-bottom: 6px; }
   .eq-chips button { flex: none; }
 }
 .muscle-chips .chip.zero { opacity: 0.45; }
+||||||| a563efd
+/* 「効かせるコツ」は説明の中でいちばん目立たせます */
+.focus { background: var(--surface); border: 1px solid var(--frost); border-radius: 10px; padding: 2px 12px 10px; margin-top: 12px; }
+.focus h4 { color: var(--frost); }
+#d-guide-breath-box[hidden], .focus[hidden] { display: none; }

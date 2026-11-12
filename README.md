@@ -69,6 +69,7 @@ The AI-written guides and translations may contain mistakes. If you spot one, pl
 - Do not generate exercise images with AI — a wrong form picture can cause injury. Keep the "Written by AI" and "AI translation" labels and the English original.
 - Keep the source, license and author credit (`attribution`) on every wger exercise.
 - Translations must keep the same number and order of steps as the English original (the app falls back to English if they differ).
+- Guide format (since 2026-11-12): `setup`, `steps` (5–8), `breathing`, `focus` (how to feel it in the target muscle) and `tips`, with the same counts in en / ja / zh. Guides are also added to exercises that have images. Claude writes them, GPT (codex) reviews them, and only verified findings are applied before publishing. When a guide differs from the source data or the source is vague, say so in `note`.
 - The body map hit-testing uses the muscle layers; do not hand-draw click areas. Refresh the SVGs with `tools/build_muscles.sh`.
 - Phrase-to-muscle search lives in `search.js` (`SYNONYMS` maps words to muscles, `INTENT_PATTERNS` lists filler phrases to ignore). Add a test in `tests/search.test.js` for every new phrase.
 - PFC Calculator link: `search.js` (`PFC_MUSCLE`, `pfcUrl`) sends `?exercise=<name, max 40 chars>&muscle=<胸|背中|脚|肩|腕|腹|その他>`; the receiver is `app.js` in [nebourocket/pfc-calculator](https://github.com/nebourocket/pfc-calculator). Change both together.
