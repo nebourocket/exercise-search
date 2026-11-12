@@ -73,14 +73,14 @@ t("部位で絞ると、筋肉の無い wger の種目も大まかな部位で�
   assert.ok(r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart === "back"));
   assert.ok(!r.some((e) => e.source === "wger" && !e.primaryMuscles.length && e.bodyPart !== "back"));
 });
-t("詳しい説明は画像か手順の文章がない種目にだけ付き、日英とも揃っている", () => {
+t("詳しい説明は実在する種目に付き、日英とも揃っている", () => {
   const guides = require(path.join(__dirname, "..", "data", "guides.json"));
   const byId = new Map(data.map((e) => [e.id, e]));
   const ids = Object.keys(guides);
   assert.ok(ids.length > 400);
   for (const id of ids) {
     const e = byId.get(id);
-    assert.ok(e && (!e.images.length || !(e.instructions || []).length), id);
+    assert.ok(e, id);
     for (const L of ["en", "ja"]) {
       const g = guides[id][L];
       assert.ok(g.setup && g.steps.length >= 3 && g.tips.length >= 2, id + L);
@@ -138,7 +138,9 @@ t("全種目に日本語・中国語の名前がある", () => {
 });
 t("翻訳した手順は原文と同じ数", () => {
   data.forEach((e) => {
-    if (guidesAll[e.id]) return;
+    if (!(e.instructions || []).length) return;
+    // もともと AI の説明があった種目は、元の手順を翻訳していないことがあります (画面は英語の原文を出します)。
+    for (const L of ["ja", "zh"]) if (guidesAll[e.id] && !(i18n[e.id][L].steps || []).length) return;
     for (const L of ["ja", "zh"]) assert.strictEqual((i18n[e.id][L].steps || []).length, (e.instructions || []).length, e.id + L);
   });
 });
@@ -148,7 +150,17 @@ t("中国語にかなが混じっていない", () => {
     assert.ok(!kana.test(t.zh.name), t.zh.name);
     (t.zh.steps || []).forEach((s) => assert.ok(!kana.test(s), s));
   }
-  for (const g of Object.values(guidesAll)) [g.zh.note || "", g.zh.setup, ...g.zh.steps, ...g.zh.tips].forEach((s) => assert.ok(!kana.test(s), s));
+  for (const g of Object.values(guidesAll)) [g.zh.note || "", g.zh.setup, ...g.zh.steps, ...g.zh.tips, g.zh.breathing || "", ...(g.zh.focus || [])].forEach((s) => assert.ok(!kana.test(s), s));
+});
+t("新しい形の説明 (呼吸・効かせるコツ付き) は 3 言語とも同じ数で揃っている", () => {
+  const v2 = Object.entries(guidesAll).filter(([, g]) => g.en.focus);
+  assert.ok(v2.length > 300);
+  for (const [id, g] of v2) {
+    for (const L of ["en", "ja", "zh"]) {
+      assert.ok(g[L].breathing && g[L].focus.length >= 3 && g[L].steps.length >= 5, id + L);
+      assert.strictEqual(g[L].focus.length, g.en.focus.length, id + L);
+    }
+  }
 });
 t("AI の説明は 3 言語そろっている", () => {
   for (const [id, g] of Object.entries(guidesAll)) for (const L of ["en", "ja", "zh"]) assert.ok(g[L] && g[L].setup && g[L].steps.length >= 3, id + L);

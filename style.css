@@ -206,3 +206,8 @@ dialog ol li { margin-bottom: 6px; }
 .foot { color: var(--muted); font-size: 0.88rem; padding-top: 20px; padding-bottom: 32px; }
 .foot p { margin: 4px 0; }
 .small { font-size: 0.8rem; }
+
+/* 「効かせるコツ」は説明の中でいちばん目立たせます */
+.focus { background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; padding: 2px 12px 10px; margin-top: 12px; }
+.focus h4 { color: var(--accent); }
+#d-guide-breath-box[hidden], .focus[hidden] { display: none; }
