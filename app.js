@@ -22,7 +22,8 @@
       logPfc: "Log in PFC Calculator", copyLink: "Copy link", copied: "Copied!",
       dataFrom: "Exercise data and images:", bodyFrom: "Body map:", guideOnly: "Guide", source: "Source",
       guideTitle: "Detailed guide", aiBadge: "Written by AI", tipsTitle: "Common mistakes & safety",
-      aiNote: "This exercise has no image or no written steps in the original data, so this text was written by AI. It may contain mistakes — check with a coach if unsure.",
+      breathTitle: "Breathing", focusTitle: "How to really feel the target muscle",
+      aiNote: "This guide was written by AI from the exercise data. It may contain mistakes — check with a coach if unsure.",
       disclaimer: "For general information only. Warm up, use safe loads, and consult a professional if you have an injury or health condition.",
       count: (n, all) => `${n.toLocaleString("en")} of ${all.toLocaleString("en")} exercises`,
       all: "All", primary: "Primary", secondaryM: "Secondary",
@@ -40,7 +41,8 @@
       logPfc: "PFC計算ツールに記録", copyLink: "リンクをコピー", copied: "コピーしました",
       dataFrom: "種目データと画像:", bodyFrom: "体の図:", guideOnly: "説明あり", source: "出典",
       guideTitle: "詳しい説明", aiBadge: "AI が書いた説明", tipsTitle: "よくある間違いと注意点",
-      aiNote: "この種目は元データに画像か手順の文章がないため、AI が書いた文章です。間違いを含むことがあります。不安なときはトレーナーに確かめてください。",
+      breathTitle: "呼吸", focusTitle: "狙った部位に効かせるコツ",
+      aiNote: "この説明は、種目のデータをもとに AI が書いた文章です。間違いを含むことがあります。不安なときはトレーナーに確かめてください。",
       disclaimer: "一般的な情報です。ウォームアップをして無理のない重さで行い、けがや持病がある場合は専門家に相談してください。",
       count: (n, all) => `${all.toLocaleString("ja")} 種目中 ${n.toLocaleString("ja")} 件`,
       all: "すべて", primary: "主に使う筋肉", secondaryM: "補助で使う筋肉",
@@ -58,7 +60,8 @@
       logPfc: "记录到 PFC Calculator", copyLink: "复制链接", copied: "已复制",
       dataFrom: "动作数据与图片：", bodyFrom: "人体图：", guideOnly: "有说明", source: "来源",
       guideTitle: "详细说明", aiBadge: "AI 撰写", tipsTitle: "常见错误与注意事项",
-      aiNote: "原始数据中该动作没有图片或文字步骤，因此本说明由 AI 撰写，可能有错误。如有疑问，请咨询教练。",
+      breathTitle: "呼吸", focusTitle: "让目标肌肉发力的要点",
+      aiNote: "本说明由 AI 根据动作数据撰写，可能有错误。如有疑问，请咨询教练。",
       disclaimer: "仅供一般参考。请充分热身、使用安全的重量；如有伤病或健康问题，请咨询专业人士。",
       count: (n, all) => `共 ${all.toLocaleString("zh")} 个动作，找到 ${n.toLocaleString("zh")} 个`,
       all: "全部", primary: "主要肌群", secondaryM: "辅助肌群",
@@ -417,6 +420,11 @@
       $("d-guide-setup").textContent = g.setup;
       fillList("d-guide-steps", g.steps);
       fillList("d-guide-tips", g.tips);
+      // 呼吸と「効かせるコツ」は、新しい形の説明にだけあります。
+      $("d-guide-breath").textContent = g.breathing || "";
+      $("d-guide-breath-box").hidden = !g.breathing;
+      fillList("d-guide-focus", g.focus || []);
+      $("d-guide-focus-box").hidden = !(g.focus || []).length;
     }
 
     // 元データの手順。英語以外では AI 翻訳を出し、原文も開けるようにします。

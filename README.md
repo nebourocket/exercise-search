@@ -47,6 +47,7 @@ Contributions (new exercises, Japanese names, fixes) are welcome via Issues and 
 
 - `data/*.json` は手で編集しない。`tools/update_data.sh` で元データ (free-exercise-db・wger 公式 API) から取り直す。他社サイトのスクレイピングはしない。
 - `data/guides.json` は画像のない種目の説明 (AI が書いたもの)。画像は AI で作らない (フォームの誤りがけがにつながるため)。説明を直すときは手で直してよいが、「AI が書いた説明」の表示は消さない。
+- `data/guides.json` の新しい形 (2026-11-12〜) は `setup`・`steps` (5〜8)・`breathing`・`focus` (狙った部位に効かせるコツ)・`tips`、日英中で数をそろえる。画像のある種目にも付ける。Claude が書き、GPT (codex) がレビューし、確かめた指摘だけを直してから出す。元データと食い違う種目や元の説明があいまいな種目は `note` にそう書く。
 - wger の種目は CC-BY-SA のため、詳細画面の出典・ライセンス・作者 (`attribution`) の表示を消さない。
 - PFC計算ツールとの連携は `search.js` の `PFC_MUSCLE` / `pfcUrl` (渡す値: `?exercise=<名前 40 文字まで>&muscle=<胸|背中|脚|肩|腕|腹|その他>`)。受け取り側は nebourocket/pfc-calculator の `app.js`。形を変えるときは両方を直す。
 - `data/i18n.json` (種目名・手順の日本語・中国語) は AI 翻訳。「AI 翻訳」の表示と英語の原文を消さない。手順は原文と同じ数・同じ順で持つ (数がずれた翻訳は画面が原文に戻す)。
