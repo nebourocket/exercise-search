@@ -3,16 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://raw.githubusercontent.com https://wger.de; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://raw.githubusercontent.com https://wger.de; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <title>Exercise Search</title>
-<meta name="description" content="Search 1,700+ exercises by body part, equipment or what you want to train — in English, Japanese and Chinese. Free and open data.">
+<meta name="description" content="Find the right exercise for the muscle you want to train. Tap the body map or just type it — 1,700+ exercises in English, Japanese and Chinese. Free and open data.">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top">
   <div class="wrap top-row">
-    <a class="brand" href="./"><img src="icon.svg" alt="" width="28" height="28"><span data-i18n="title">Exercise Search</span></a>
+    <a class="brand" href="./"><img src="icon.svg" alt="" width="26" height="26"><span data-i18n="title">Exercise Search</span></a>
     <label class="lang-pick">
       <span class="sr-only">Language</span>
       <select id="lang" aria-label="Language">
@@ -25,23 +28,19 @@
 </header>
 
 <section class="hero">
-  <div class="wrap">
-    <h1 data-i18n="heroTitle">What do you want to train?</h1>
-    <p class="hero-sub" data-i18n="heroSub">Search by exercise name, body part, equipment — or just say it.</p>
-    <div class="searchbox">
-      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <label for="q" class="sr-only" data-i18n="searchLabel">Search exercises</label>
-      <input id="q" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="placeholder" placeholder="e.g. train my back, dumbbell chest, pull-up">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1 data-i18n="heroTitle">What do you want to train?</h1>
+      <p class="hero-sub" data-i18n="heroSub">Tap a muscle on the body, or just type it.</p>
+      <div class="searchbox">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <label for="q" class="sr-only" data-i18n="searchLabel">Search exercises</label>
+        <input id="q" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="placeholder" placeholder="e.g. train my back, dumbbell chest, pull-up">
+      </div>
+      <div class="examples" id="examples" aria-label="Examples"></div>
+      <p class="understood" id="understood" hidden></p>
     </div>
-    <div class="examples" id="examples" aria-label="Examples"></div>
-    <p class="understood" id="understood" hidden></p>
-  </div>
-</section>
-
-<main class="wrap layout">
-  <aside class="side">
-    <section class="panel bodymap-panel">
-      <h2 class="panel-title" data-i18n="pickMuscle">Tap a muscle</h2>
+    <div class="hero-map">
       <div class="bodymap" id="bodymap">
         <figure class="fig" data-side="front">
           <div class="fig-stack"><img class="fig-base" src="assets/muscles/front.svg" alt="" width="200" height="369"></div>
@@ -51,25 +50,43 @@
           <div class="fig-stack"><img class="fig-base" src="assets/muscles/back.svg" alt="" width="200" height="369"></div>
           <figcaption data-i18n="back">Back</figcaption>
         </figure>
+        <div class="map-tip" id="map-tip" role="status" hidden></div>
       </div>
-      <div class="chips" id="muscle-chips" role="group" aria-label="Muscles"></div>
-    </section>
-    <details class="panel more-filters" id="more-filters">
+      <div class="heat-legend" aria-hidden="true">
+        <span data-i18n="fewer">Fewer exercises</span>
+        <i class="ramp"></i>
+        <span data-i18n="more2">More</span>
+      </div>
+      <div class="chips muscle-chips" id="muscle-chips" role="group" aria-label="Muscles"></div>
+    </div>
+  </div>
+</section>
+
+<nav class="flow wrap" aria-label="How to use">
+  <ol class="steps" id="steps">
+    <li data-step="1"><b class="n">1</b><span><strong data-i18n="step1">Pick a muscle</strong><em id="step1-state" data-i18n="step1Hint">Tap the body or type</em></span></li>
+    <li data-step="2"><b class="n">2</b><span><strong data-i18n="step2">Choose your equipment</strong><em id="step2-state" data-i18n="step2Hint">Anything goes</em></span></li>
+    <li data-step="3"><b class="n">3</b><span><strong data-i18n="step3">Open an exercise</strong><em data-i18n="step3Hint">Follow the steps, then log it</em></span></li>
+  </ol>
+</nav>
+
+<main class="wrap">
+  <section class="toolbar" aria-label="Filters">
+    <div class="eq-chips" id="eq-chips" role="group" aria-label="Equipment"></div>
+    <details class="more-filters" id="more-filters">
       <summary data-i18n="moreFilters">More filters</summary>
       <div class="filters" id="filters"></div>
       <label class="check"><input type="checkbox" id="secondary"> <span data-i18n="secondary">Include secondary muscles</span></label>
     </details>
-  </aside>
-
-  <section class="results-col">
-    <div class="bar">
-      <p id="count" role="status"></p>
-      <button type="button" id="reset" class="ghost" data-i18n="reset">Clear</button>
-    </div>
-    <ul id="results" class="grid"></ul>
-    <button type="button" id="more" class="more" hidden data-i18n="more">Show more</button>
-    <p id="empty" class="empty" hidden data-i18n="empty">No exercises found. Try fewer words or clear the filters.</p>
   </section>
+
+  <div class="bar">
+    <p id="count" role="status"></p>
+    <button type="button" id="reset" class="ghost" data-i18n="reset">Clear</button>
+  </div>
+  <ul id="results" class="grid"></ul>
+  <button type="button" id="more" class="more" hidden data-i18n="more">Show more</button>
+  <p id="empty" class="empty" hidden data-i18n="empty">No exercises match. Remove a word or clear the filters.</p>
 </main>
 
 <dialog id="detail" aria-labelledby="d-name">
@@ -101,7 +118,7 @@
     </section>
     <section id="d-howto">
       <h3><span id="d-howto-title">How to</span> <span class="badge" id="d-tr-badge" data-i18n="aiTranslated" hidden>AI translation</span></h3>
-      <ol id="d-steps"></ol>
+      <ol id="d-steps" class="steps-list"></ol>
       <details id="d-orig" hidden>
         <summary data-i18n="original">Original (English)</summary>
         <ol id="d-orig-steps"></ol>
@@ -116,8 +133,8 @@
 </dialog>
 
 <footer class="wrap foot">
-  <p><span data-i18n="dataFrom">Exercise data and images:</span> <a href="https://github.com/yuhonas/free-exercise-db" rel="noopener">free-exercise-db</a> (Unlicense) · <a href="https://wger.de" rel="noopener">wger</a> (CC-BY-SA 3.0/4.0, CC0; credits on each exercise)</p>
-  <p><span data-i18n="bodyFrom">Body map:</span> <a href="https://commons.wikimedia.org/wiki/File:Muscular_system.svg" rel="noopener">Termininja / Wikimedia Commons</a>, adapted by <a href="https://github.com/wger-project/wger" rel="noopener">wger</a> (CC BY-SA 3.0) · <a href="https://github.com/nebourocket/exercise-search" rel="noopener">GitHub</a> · <a href="https://nebourocket.github.io/pfc-calculator/" rel="noopener">PFC Calculator</a></p>
+  <p><span data-i18n="dataFrom">Exercise data and images:</span> <a href="https://github.com/yuhonas/free-exercise-db" rel="noopener">free-exercise-db</a> (Unlicense), <a href="https://wger.de" rel="noopener">wger</a> (CC-BY-SA 3.0/4.0, CC0; credits on each exercise)</p>
+  <p><span data-i18n="bodyFrom">Body map:</span> <a href="https://commons.wikimedia.org/wiki/File:Muscular_system.svg" rel="noopener">Termininja / Wikimedia Commons</a>, adapted by <a href="https://github.com/wger-project/wger" rel="noopener">wger</a> (CC BY-SA 3.0). <a href="https://github.com/nebourocket/exercise-search" rel="noopener">Source on GitHub</a>. <a href="https://nebourocket.github.io/pfc-calculator/" rel="noopener">PFC Calculator</a></p>
   <p class="small" data-i18n="disclaimer">For general information only. Warm up, use safe loads, and consult a professional if you have an injury or health condition.</p>
 </footer>
 

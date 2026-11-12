@@ -159,4 +159,8 @@ t("翻訳した名前で探せる (日本語・中国語)", () => {
   assert.ok(S.search(ix, "卧推", {}).length > 0);
   assert.ok(S.search(ix, i18n["Barbell_Squat"].zh.name, {}).some((e) => e.id === "Barbell_Squat"));
 });
+t("英語の正式名 (glutes dumbbell) も部位・器具として受け取る", () => {
+  assert.deepStrictEqual(S.parseQuery("glutes dumbbell").map((g) => g.terms), [["glutes"], ["dumbbell"]]);
+  assert.deepStrictEqual(S.parseQuery("kettlebells").map((g) => g.terms), [["kettlebells"]]);
+});
 console.log(`${n} tests passed`);

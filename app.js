@@ -12,12 +12,15 @@
   const T = {
     en: {
       title: "Exercise Search", searchLabel: "Search exercises",
-      heroTitle: "What do you want to train?", heroSub: "Search by exercise name, body part or equipment — or just say what you want to work on.",
+      heroTitle: "What do you want to train?", heroSub: "Tap a muscle on the body, or just type it — like “train my back” or “dumbbell chest”.",
+      fewer: "Fewer exercises", more2: "More", exercisesN: (n) => `${n.toLocaleString("en")} exercises`, eqAll: "Any equipment",
+      step1: "Pick a muscle", step1Hint: "Tap the body or type", step2: "Choose your equipment", step2Hint: "Anything goes",
+      step3: "Open an exercise", step3Hint: "Follow the steps, then log it",
       placeholder: "e.g. train my back, dumbbell chest, pull-up",
       examples: ["Train my back", "Abs at home", "Dumbbell chest", "Glutes", "Stretching"],
       understood: "Showing exercises for", pickMuscle: "Tap a muscle", front: "Front", back: "Back",
       moreFilters: "More filters", secondary: "Include secondary muscles", reset: "Clear", more: "Show more",
-      empty: "No exercises found. Try fewer words or clear the filters.",
+      empty: "No exercises match. Remove a word or clear the filters.",
       howto: "How to", original: "Original (English)", aiTranslated: "AI translation",
       logPfc: "Log in PFC Calculator", copyLink: "Copy link", copied: "Copied!",
       dataFrom: "Exercise data and images:", bodyFrom: "Body map:", guideOnly: "Guide", source: "Source",
@@ -30,12 +33,15 @@
     },
     ja: {
       title: "筋トレ種目サーチ", searchLabel: "種目を検索",
-      heroTitle: "どこを鍛えたいですか？", heroSub: "種目名・部位・器具で探せます。「二の腕を引き締めたい」のように書いてもOKです。",
+      heroTitle: "どこを鍛えたいですか？", heroSub: "体の図の筋肉をタップするか、「二の腕を引き締めたい」のように書いてください。",
+      fewer: "種目が少ない", more2: "多い", exercisesN: (n) => `${n.toLocaleString("ja")} 種目`, eqAll: "器具はなんでも",
+      step1: "鍛える部位を選ぶ", step1Hint: "体をタップか、言葉で", step2: "器具を選ぶ", step2Hint: "なんでもOK",
+      step3: "種目を開く", step3Hint: "やり方を見て、記録まで",
       placeholder: "例: 二の腕を引き締めたい、胸 ダンベル、懸垂",
       examples: ["二の腕を引き締めたい", "お腹を鍛えたい", "自宅で胸", "お尻 ダンベル", "ストレッチ"],
       understood: "次の部位の種目を表示中:", pickMuscle: "鍛えたい筋肉をタップ", front: "前", back: "後ろ",
       moreFilters: "そのほかの絞り込み", secondary: "補助で使う筋肉も含める", reset: "解除", more: "もっと見る",
-      empty: "見つかりませんでした。言葉を減らすか、絞り込みを解除してください。",
+      empty: "当てはまる種目がありません。言葉を減らすか、絞り込みを解除してください。",
       howto: "やり方", original: "原文 (英語)", aiTranslated: "AI 翻訳",
       logPfc: "PFC計算ツールに記録", copyLink: "リンクをコピー", copied: "コピーしました",
       dataFrom: "種目データと画像:", bodyFrom: "体の図:", guideOnly: "説明あり", source: "出典",
@@ -48,7 +54,10 @@
     },
     zh: {
       title: "健身动作搜索", searchLabel: "搜索动作",
-      heroTitle: "你想练哪里？", heroSub: "可按动作名称、部位或器械搜索，也可以直接写“想练臀部”。",
+      heroTitle: "你想练哪里？", heroSub: "点击人体图上的肌肉，或直接输入，例如“想练臀部”。",
+      fewer: "动作较少", more2: "较多", exercisesN: (n) => `${n.toLocaleString("zh")} 个动作`, eqAll: "器械不限",
+      step1: "选择部位", step1Hint: "点击人体图或输入", step2: "选择器械", step2Hint: "不限",
+      step3: "打开动作", step3Hint: "按步骤练，再记录",
       placeholder: "例如：想练臀部、哑铃 胸、引体向上",
       examples: ["想练臀部", "在家练腹肌", "哑铃 胸", "背部", "拉伸"],
       understood: "正在显示以下部位的动作：", pickMuscle: "点击想练的肌肉", front: "正面", back: "背面",
@@ -96,7 +105,7 @@
       compound: "多关节", isolation: "单关节",
       "bp:legs": "腿部", "bp:back": "背部", "bp:arms": "手臂", "bp:calves": "小腿", "bp:abs": "腹肌", "bp:chest": "胸部", "bp:shoulders": "肩部", "bp:cardio": "有氧",
     },
-    en: { none: "none / unspecified", "bp:legs": "legs", "bp:back": "back", "bp:arms": "arms", "bp:calves": "calves", "bp:abs": "abs", "bp:chest": "chest", "bp:shoulders": "shoulders", "bp:cardio": "cardio" },
+    en: { none: "not specified", "body only": "bodyweight", "e-z curl bar": "EZ bar", kettlebells: "kettlebell", "bp:legs": "legs", "bp:back": "back", "bp:arms": "arms", "bp:calves": "calves", "bp:abs": "abs", "bp:chest": "chest", "bp:shoulders": "shoulders", "bp:cardio": "cardio" },
   };
 
   // 体の図: 筋肉 → wger の重ね図の番号 (前 f / 後ろ b)。図に無い筋肉 (前腕・腰など) はボタンだけで選びます。
@@ -133,12 +142,16 @@
     q: $("q"), filters: $("filters"), secondary: $("secondary"), count: $("count"), results: $("results"),
     more: $("more"), empty: $("empty"), reset: $("reset"), lang: $("lang"), detail: $("detail"),
     examples: $("examples"), understood: $("understood"), chips: $("muscle-chips"), bodymap: $("bodymap"),
+    eq: $("eq-chips"), tip: $("map-tip"), steps: $("steps"),
   };
 
   let data = [], index = [], byId = new Map(), current = [], shown = 0;
   let guides = {}; // AI が書いた詳しい説明 (data/guides.json)
   let i18n = {};   // 種目名と手順の翻訳 (data/i18n.json)
   const filters = {};
+  let heat = {};      // 今の検索条件 (部位の指定を除く) での、筋肉ごとの種目数
+  let eqCount = {};   // 今の検索条件 (器具の指定を除く) での、器具ごとの種目数
+  let introDone = false;
 
   function el(tag, props, kids) {
     const n = document.createElement(tag);
@@ -200,6 +213,43 @@
       if (hover && !(selected || []).includes(hover)) add([hover], "m", "hover");
     });
   }
+  // ヒーローの体の図: 種目が多い筋肉ほど濃い赤 (1 色の濃淡)。選んだ筋肉は光らせ、ほかは薄くします。
+  function paintHeat(hover) {
+    const max = Math.max(1, ...Object.values(heat));
+    els.bodymap.querySelectorAll(".fig-stack").forEach((stack) => {
+      const side = stack.closest("[data-side]").dataset.side === "back" ? "b" : "f";
+      stack.querySelectorAll(".ov").forEach((n) => n.remove());
+      for (const [m, sides] of Object.entries(MAP)) {
+        const c = heat[m] || 0;
+        const sel = filters.muscle === m;
+        if (!c && !sel && hover !== m) continue;
+        // 面積ではなく濃さで数を表すので、平方根でならして小さい数も見えるようにします。
+        let a = 0.18 + 0.82 * Math.sqrt(c / max);
+        if (filters.muscle && !sel) a *= 0.45;
+        if (sel) a = 1;
+        for (const n of sides[side] || []) {
+          const img = el("img", { class: "ov" + (sel ? " sel" : "") + (hover === m ? " hover" : ""), src: ov("m", n), alt: "" });
+          img.style.opacity = String(hover === m ? Math.max(a, 0.85) : a);
+          stack.appendChild(img);
+        }
+      }
+    });
+    if (!introDone && Object.keys(heat).length) {
+      introDone = true;
+      els.bodymap.classList.add("intro");
+      setTimeout(() => els.bodymap.classList.remove("intro"), 1200);
+    }
+  }
+  function showTip(stack, e, m) {
+    if (!m) { els.tip.hidden = true; return; }
+    const r = els.bodymap.getBoundingClientRect();
+    els.tip.textContent = "";
+    els.tip.appendChild(el("b", { text: val(m) }));
+    els.tip.append(tr("exercisesN")(heat[m] || 0));
+    els.tip.style.left = `${e.clientX - r.left}px`;
+    els.tip.style.top = `${e.clientY - r.top}px`;
+    els.tip.hidden = false;
+  }
   function setupBodyMap() {
     els.bodymap.querySelectorAll(".fig").forEach((fig) => {
       const side = fig.dataset.side === "back" ? "b" : "f";
@@ -210,10 +260,11 @@
         if (m === last) return;
         last = m;
         stack.style.cursor = m ? "pointer" : "default";
-        paintMap(els.bodymap, filters.muscle ? [filters.muscle] : [], m);
+        paintHeat(m);
         els.chips.querySelectorAll(".chip").forEach((c) => c.classList.toggle("hover", c.dataset.m === m));
       });
-      stack.addEventListener("mouseleave", () => { last = null; syncMuscleUi(); });
+      stack.addEventListener("mousemove", (e) => showTip(stack, e, muscleAt(side, e, stack)));
+      stack.addEventListener("mouseleave", () => { last = null; els.tip.hidden = true; syncMuscleUi(); });
       stack.addEventListener("click", (e) => {
         const m = muscleAt(side, e, stack);
         if (m) setMuscle(filters.muscle === m ? undefined : m);
@@ -226,20 +277,18 @@
     run();
   }
   function syncMuscleUi() {
-    paintMap(els.bodymap, filters.muscle ? [filters.muscle] : [], null);
+    paintHeat(null);
     els.chips.querySelectorAll(".chip").forEach((c) => {
       c.setAttribute("aria-pressed", String(c.dataset.m === filters.muscle));
       c.classList.remove("hover");
     });
-    const s = els.filters.querySelector('select[data-key="muscle"]');
-    if (s) { s.value = filters.muscle || ""; s.classList.toggle("on", !!s.value); }
   }
   function buildMuscleChips() {
     els.chips.textContent = "";
     [...S.MUSCLES].sort((a, b) => val(a).localeCompare(val(b), lang)).forEach((m) => {
-      const b = el("button", { type: "button", class: "chip", "data-m": m, "aria-pressed": "false", text: val(m) });
+      const b = el("button", { type: "button", class: "chip", "data-m": m, "aria-pressed": "false" }, [document.createTextNode(val(m) + " "), el("small", { text: "" })]);
       b.addEventListener("click", () => setMuscle(filters.muscle === m ? undefined : m));
-      b.addEventListener("mouseenter", () => paintMap(els.bodymap, filters.muscle ? [filters.muscle] : [], m));
+      b.addEventListener("mouseenter", () => paintHeat(m));
       b.addEventListener("mouseleave", () => syncMuscleUi());
       els.chips.appendChild(b);
     });
@@ -256,7 +305,7 @@
     });
     const order = { level: ["beginner", "intermediate", "expert"] };
     els.filters.textContent = "";
-    S.FILTER_KEYS.forEach((k) => {
+    S.FILTER_KEYS.filter((k) => k !== "muscle" && k !== "equipment").forEach((k) => {
       const s = el("select", { "aria-label": tr(k), "data-key": k });
       s.appendChild(el("option", { value: "", text: `${tr(k)}: ${tr("all")}` }));
       const list = order[k] || [...values[k]].sort((a, b) => val(a).localeCompare(val(b), lang));
@@ -266,13 +315,47 @@
       s.addEventListener("change", () => {
         filters[k] = s.value || undefined;
         s.classList.toggle("on", !!s.value);
-        if (k === "muscle") syncMuscleUi();
         run();
       });
       els.filters.appendChild(s);
     });
   }
 
+  // 器具のボタン。今の条件で多い順に並べ、件数を添えます。
+  function buildEquipment() {
+    els.eq.textContent = "";
+    // 「不明」「その他」は選ぶ意味が薄いので最後に回します。
+    const last = (k) => (k === "none" || k === "other" ? 1 : 0);
+    const list = Object.entries(eqCount).sort((a, b) => last(a[0]) - last(b[0]) || b[1] - a[1]).map(([k]) => k);
+    if (filters.equipment && !list.includes(filters.equipment)) list.unshift(filters.equipment);
+    const total = Object.values(eqCount).reduce((a, b) => a + b, 0);
+    const mk = (key, label, n) => {
+      const b = el("button", { type: "button", "aria-pressed": String((filters.equipment || "") === key) }, [document.createTextNode(label + " "), el("small", { text: n.toLocaleString(lang) })]);
+      b.addEventListener("click", () => { filters.equipment = key || undefined; run(); });
+      els.eq.appendChild(b);
+    };
+    mk("", tr("eqAll"), total);
+    list.forEach((k) => mk(k, val(k), eqCount[k] || 0));
+  }
+  // 使い方の 3 段を、今の状態に合わせて灯します。
+  function updateSteps() {
+    const terms = [];
+    for (const g of S.parseQuery(els.q.value)) for (const t of g.terms || []) if (S.MUSCLES.includes(t) || t.startsWith("bp:")) terms.push(t);
+    const picked = filters.muscle ? val(filters.muscle) : terms.length ? [...new Set(terms.map(val))].slice(0, 2).join(", ") : "";
+    const s1 = els.steps.querySelector('[data-step="1"]'), s2 = els.steps.querySelector('[data-step="2"]'), s3 = els.steps.querySelector('[data-step="3"]');
+    s1.classList.toggle("done", !!picked);
+    $("step1-state").textContent = picked || tr("step1Hint");
+    // 「お尻 ダンベル」のように言葉で器具を書いたときも、器具を選んだことにします。
+    const EQ = new Set(Object.keys(eqCount).concat(["body only"]));
+    const eqWords = [];
+    for (const g of S.parseQuery(els.q.value)) for (const t of g.terms || []) if (EQ.has(t)) eqWords.push(t);
+    const eqPicked = filters.equipment ? val(filters.equipment) : eqWords.length ? val(eqWords[0]) : "";
+    s2.classList.toggle("done", !!eqPicked);
+    $("step2-state").textContent = eqPicked || tr("step2Hint");
+    s1.classList.toggle("next", !picked);
+    s2.classList.toggle("next", !!picked && !eqPicked);
+    s3.classList.toggle("next", !!picked && !!eqPicked);
+  }
   function buildExamples() {
     els.examples.textContent = "";
     tr("examples").forEach((x) => {
@@ -346,6 +429,19 @@
   function run(keepUrl) {
     filters.includeSecondary = els.secondary.checked;
     current = S.search(index, els.q.value, filters);
+    // 体の図とボタンの件数: それぞれ自分の絞り込みを外した数を数えます (選び直しやすくするため)。
+    heat = {};
+    for (const ex of S.search(index, els.q.value, { ...filters, muscle: undefined })) for (const m of musclesOf(ex)) heat[m] = (heat[m] || 0) + 1;
+    eqCount = {};
+    for (const ex of S.search(index, els.q.value, { ...filters, equipment: undefined })) { const k = ex.equipment || "none"; eqCount[k] = (eqCount[k] || 0) + 1; }
+    els.chips.querySelectorAll(".chip").forEach((c) => {
+      const n = heat[c.dataset.m] || 0;
+      c.querySelector("small").textContent = n.toLocaleString(lang);
+      c.classList.toggle("zero", !n);
+    });
+    buildEquipment();
+    syncMuscleUi();
+    updateSteps();
     shown = 0;
     els.results.textContent = "";
     renderMore();

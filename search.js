@@ -112,6 +112,10 @@
     });
   }
 
+  // 英語の正式名 (glutes・dumbbell など) もそのまま辞書に入れ、部位や器具として受け取れるようにします。
+  for (const w of ["abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms", "glutes", "hamstrings",
+    "lats", "neck", "quadriceps", "shoulders", "traps", "triceps"]) if (!SYNONYMS[w]) SYNONYMS[w] = [w];
+  for (const w of ["dumbbell", "dumbbells", "barbell", "cable", "machine", "kettlebells"]) if (!SYNONYMS[w]) SYNONYMS[w] = [w.replace(/s$/, "") === "kettlebell" ? "kettlebells" : w.replace(/s$/, "")];
   const KEYS = Object.keys(SYNONYMS).sort((a, b) => b.length - a.length);
   // 部位だけを表す読み替え (筋肉名と "bp:" の部位) かどうか。部位で探したときの並べ方に使います。
   const isMuscleTerm = (t) => MUSCLES.includes(t) || t.startsWith("bp:");
